@@ -9,6 +9,7 @@ module.exports = {
     siteUrl: `https://sspilsbury.com/`,
   },
   plugins: [
+    `gatsby-plugin-styled-components`,
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,
