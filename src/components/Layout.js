@@ -1,8 +1,62 @@
 import * as React from "react"
+import PropTypes from "prop-types"
+import styled from "styled-components"
 import { Link } from "gatsby"
 import { BackgroundAnimation } from "./BackgroundAnimation"
 
-const Layout = ({ location, title, children }) => {
+const CenteredNav = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+`
+
+const MenuUl = styled.ul`
+  display: flex;
+  flex: 1;
+  flex-grow: 0;
+  margin: 0;
+`
+
+const MenuLi = styled.li`
+  list-style-type: none;
+  padding: 0rem 1rem;
+  margin 0;
+`
+
+const Nav = ({ menuLinks }) => (
+  <CenteredNav className="menu-nav">
+    <MenuUl className="menu-unordered-list">
+      {menuLinks
+        .filter(l => l.nav)
+        .map(link => (
+          <MenuLi key={link.name} className="menu-list-item">
+            <Link
+              style={{
+                textDecoration: `none`,
+                fontFamily: `Montserrat, system-ui`,
+              }}
+              to={link.link}
+            >
+              {link.name}
+            </Link>
+          </MenuLi>
+        ))}
+    </MenuUl>
+  </CenteredNav>
+)
+
+Nav.propTypes = {
+  menuLinks: PropTypes.arrayOf(
+    PropTypes.shape({
+      nav: PropTypes.bool.isRequired,
+      link: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    })
+  ),
+}
+
+const Layout = ({ location, title, children, menuLinks }) => {
   const rootPath = `${__PATH_PREFIX__}/`
   const isRootPath = location.pathname === rootPath
   let header
@@ -21,6 +75,7 @@ const Layout = ({ location, title, children }) => {
             height: "300px",
           }}
         ></BackgroundAnimation>
+        <Nav menuLinks={menuLinks} />
       </div>
     )
   } else {
