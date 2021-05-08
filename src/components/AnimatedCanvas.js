@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useRef } from "react"
 import PropTypes from "prop-types"
 import TrackVisibility from "react-on-screen"
 import ReactResizeDetector from "react-resize-detector"
@@ -97,25 +97,28 @@ export const makeAnimatedCanvas = ({ init, update, propTypes = {} }) => {
     style = {},
     animating = true,
     ...props
-  }) => (
-    <TrackVisibility partialVisibility style={style}>
-      {({ isVisible }) => (
-        <SizeTrackingContainer style={style}>
-          <ReactResizeDetector>
-            {({ width, height }) => (
-              <AnimatedCanvas
-                animating={animating && isVisible}
-                style={style}
-                width={width}
-                height={height}
-                {...props}
-              />
-            )}
-          </ReactResizeDetector>
-        </SizeTrackingContainer>
-      )}
-    </TrackVisibility>
-  )
+  }) => {
+    const ref = useRef()
+    return (
+      <TrackVisibility partialVisibility style={style}>
+        {({ isVisible }) => (
+          <SizeTrackingContainer style={style} ref={ref}>
+            <ReactResizeDetector targetRef={ref} handleWidth handleHeight>
+              {({ width, height }) => (
+                <AnimatedCanvas
+                  animating={animating && isVisible}
+                  style={style}
+                  width={width}
+                  height={height}
+                  {...props}
+                />
+              )}
+            </ReactResizeDetector>
+          </SizeTrackingContainer>
+        )}
+      </TrackVisibility>
+    )
+  }
 
   VisibilityTrackingAnimation.propTypes = {
     style: PropTypes.object,
