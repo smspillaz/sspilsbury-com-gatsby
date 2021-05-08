@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Link } from "gatsby"
+import { BackgroundAnimation } from "./BackgroundAnimation"
 
 const Layout = ({ location, title, children }) => {
   const rootPath = `${__PATH_PREFIX__}/`
@@ -8,9 +9,19 @@ const Layout = ({ location, title, children }) => {
 
   if (isRootPath) {
     header = (
-      <h1 className="main-heading">
-        <Link to="/">{title}</Link>
-      </h1>
+      <div>
+        <h1 className="main-heading" style={{ textAlign: "center" }}>
+          <Link to="/">{title}</Link>
+        </h1>
+        <BackgroundAnimation
+          style={{
+            margin: "-80px 0 -80px 0",
+            zIndex: 0,
+            width: "100%",
+            height: "300px",
+          }}
+        ></BackgroundAnimation>
+      </div>
     )
   } else {
     header = (
