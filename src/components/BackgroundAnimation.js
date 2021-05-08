@@ -111,7 +111,6 @@ export const BackgroundAnimation = makeAnimatedCanvas({
       renderer.setSize(width, height)
 
       // eslint-disable-next-line
-      camera.aspect = width / height
       camera.updateProjectionMatrix()
     }
 
