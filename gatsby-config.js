@@ -7,6 +7,33 @@ module.exports = {
     },
     description: `A starter blog demonstrating what Gatsby can do.`,
     siteUrl: `https://sspilsbury.com/`,
+    menuLinks: [
+      {
+        name: `home`,
+        link: `/`,
+        nav: false,
+      },
+      {
+        name: `posts`,
+        link: `/posts`,
+        nav: true,
+      },
+      {
+        name: `projects`,
+        link: `/projects`,
+        nav: true,
+      },
+      {
+        name: `research`,
+        link: `/research`,
+        nav: true,
+      },
+      {
+        name: `hire`,
+        link: `/hire`,
+        nav: true,
+      },
+    ],
   },
   plugins: [
     `gatsby-plugin-styled-components`,
