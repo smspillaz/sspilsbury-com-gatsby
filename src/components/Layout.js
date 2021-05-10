@@ -20,7 +20,7 @@ const MenuUl = styled.ul`
 
 const MenuLi = styled.li`
   list-style-type: none;
-  padding: 0rem 1rem;
+  padding: 0rem 0.5rem;
   margin 0;
 `
 
