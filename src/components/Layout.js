@@ -58,14 +58,21 @@ Nav.propTypes = {
   ),
 }
 
+const toplevelPages = [
+  `${__PATH_PREFIX__}/`,
+  `${__PATH_PREFIX__}/posts`,
+  `${__PATH_PREFIX__}/projects`,
+  `${__PATH_PREFIX__}/research`,
+  `${__PATH_PREFIX__}/hire`,
+]
+
 const components = {
   bio: PageBio,
   link: Link,
 }
 
 const Layout = ({ location, title, children, menuLinks }) => {
-  const rootPath = `${__PATH_PREFIX__}/`
-  const isRootPath = location.pathname === rootPath
+  const isRootPath = !!toplevelPages.filter(p => p === location.pathname).length
   let header
 
   if (isRootPath) {
