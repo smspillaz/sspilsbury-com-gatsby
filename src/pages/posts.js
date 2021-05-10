@@ -5,14 +5,14 @@ import Bio from "../components/Bio"
 import Layout from "../components/Layout"
 import Seo from "../components/SEO"
 
-const BlogIndex = ({ data, location }) => {
+const BlogIndex = ({ data }) => {
   const siteTitle = data.site.siteMetadata?.title || `Title`
   const posts = data.allMdx.nodes
   const menuLinks = data.site.siteMetadata.menuLinks
 
   if (posts.length === 0) {
     return (
-      <Layout location={location} title={siteTitle}>
+      <Layout title={siteTitle}>
         <Seo title="All posts" />
         <Bio />
         <p>
@@ -25,7 +25,7 @@ const BlogIndex = ({ data, location }) => {
   }
 
   return (
-    <Layout location={location} title={siteTitle} menuLinks={menuLinks}>
+    <Layout title={siteTitle} menuLinks={menuLinks} root>
       <Seo title="All posts" />
       <ol style={{ listStyle: `none` }}>
         {posts.map(post => {

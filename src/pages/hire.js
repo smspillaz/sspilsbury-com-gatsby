@@ -5,13 +5,13 @@ import { MDXRenderer } from "gatsby-plugin-mdx"
 import Layout from "../components/Layout"
 import Seo from "../components/SEO"
 
-const HirePageIndex = ({ data, location }) => {
+const HirePageIndex = ({ data }) => {
   const post = data.mdx
   const siteTitle = data.site.siteMetadata?.title || `Title`
   const menuLinks = data.site.siteMetadata.menuLinks
 
   return (
-    <Layout location={location} title={siteTitle} menuLinks={menuLinks}>
+    <Layout title={siteTitle} menuLinks={menuLinks} root>
       <Seo
         title={post.frontmatter.title}
         description={post.frontmatter.description || post.excerpt}

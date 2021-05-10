@@ -8,14 +8,14 @@ import { ProjectPreview } from "../components/ProjectPreview"
 import { ProjectPreviewImageCarousel } from "../components/ProjectPreviewImageCarousel"
 import { LayoutTypes } from "../components/ResponsiveOrderedLayoutChild"
 
-const ProjectIndex = ({ data, location }) => {
+const ProjectIndex = ({ data }) => {
   const siteTitle = data.site.siteMetadata?.title || `Title`
   const posts = data.allMdx.nodes
   const menuLinks = data.site.siteMetadata.menuLinks
 
   if (posts.length === 0) {
     return (
-      <Layout location={location} title={siteTitle}>
+      <Layout title={siteTitle}>
         <Seo title="All posts" />
         <Bio />
         <p>
@@ -28,7 +28,7 @@ const ProjectIndex = ({ data, location }) => {
   }
 
   return (
-    <Layout location={location} title={siteTitle} menuLinks={menuLinks}>
+    <Layout title={siteTitle} menuLinks={menuLinks} root>
       <Seo title="All posts" />
       <ol style={{ listStyle: `none` }}>
         {posts.map((post, i) => {
