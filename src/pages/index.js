@@ -7,7 +7,7 @@ import Seo from "../components/SEO"
 
 const BlogIndex = ({ data, location }) => {
   const siteTitle = data.site.siteMetadata?.title || `Title`
-  const posts = data.allMarkdownRemark.nodes
+  const posts = data.allMdx.nodes
   const menuLinks = data.site.siteMetadata.menuLinks
 
   if (posts.length === 0) {
@@ -78,7 +78,10 @@ export const pageQuery = graphql`
         }
       }
     }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+    allMdx(
+      sort: { fields: [frontmatter___date], order: DESC }
+      filter: { frontmatter: { post: { eq: true } } }
+    ) {
       nodes {
         excerpt
         fields {
