@@ -5,7 +5,7 @@ module.exports = {
       name: `Sam Spilsbury`,
       summary: `an Australian PhD student living in Helsinki.`,
     },
-    description: `A starter blog demonstrating what Gatsby can do.`,
+    description: `Thoughts and Info`,
     siteUrl: `https://sspilsbury.com/`,
     menuLinks: [
       {
