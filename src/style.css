@@ -157,6 +157,15 @@ h6 > a {
   color: inherit;
 }
 
+/* Images */
+
+article img {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
 /* Prose */
 
 p {
