@@ -25,7 +25,7 @@ const BlogIndex = ({ data, location }) => {
   }
 
   return (
-    <Layout location={location} title={siteTitle} menuLinks={menuLinks}>
+    <Layout location={location} title={siteTitle} menuLinks={menuLinks} root>
       <Seo title="All posts" />
       <ol style={{ listStyle: `none` }}>
         {posts.map(post => {
