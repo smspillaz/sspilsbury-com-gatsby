@@ -1,8 +1,10 @@
 import * as React from "react"
 import PropTypes from "prop-types"
 import styled from "styled-components"
+import { MDXProvider } from "@mdx-js/react"
 import { Link } from "gatsby"
 import { BackgroundAnimation } from "./BackgroundAnimation"
+import { PageBio } from "./PageBio"
 
 const CenteredNav = styled.nav`
   display: flex;
@@ -56,6 +58,11 @@ Nav.propTypes = {
   ),
 }
 
+const components = {
+  bio: PageBio,
+  link: Link,
+}
+
 const Layout = ({ location, title, children, menuLinks }) => {
   const rootPath = `${__PATH_PREFIX__}/`
   const isRootPath = location.pathname === rootPath
@@ -87,15 +94,17 @@ const Layout = ({ location, title, children, menuLinks }) => {
   }
 
   return (
-    <div className="global-wrapper" data-is-root-path={isRootPath}>
-      <header className="global-header">{header}</header>
-      <main>{children}</main>
-      <footer>
-        © {new Date().getFullYear()}, Built with
-        {` `}
-        <a href="https://www.gatsbyjs.com">Gatsby</a>
-      </footer>
-    </div>
+    <MDXProvider components={components}>
+      <div className="global-wrapper" data-is-root-path={isRootPath}>
+        <header className="global-header">{header}</header>
+        <main>{children}</main>
+        <footer>
+          © {new Date().getFullYear()}, Built with
+          {` `}
+          <a href="https://www.gatsbyjs.com">Gatsby</a>
+        </footer>
+      </div>
+    </MDXProvider>
   )
 }
 
