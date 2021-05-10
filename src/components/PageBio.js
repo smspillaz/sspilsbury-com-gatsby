@@ -35,20 +35,53 @@ const Description = styled.div`
   }
 `
 
-export const PageBio = ({ children }) => {
+const ButtonContainer = styled.div`
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+`
+
+const ButtonLink = styled.a`
+  &:hover {
+    div {
+      filter: brightness(125%);
+    }
+  }
+`
+
+const Button = styled.div`
+  background-color: var(--color-primary);
+  border-radius: 0.2em;
+  color: white;
+  display: block;
+  font-family: var(--fontFamily-sans);
+  padding 0.4em;
+`
+
+export const PageBio = ({ children, resume }) => {
   return (
     <FlexContainer>
-      <StaticImage
-        className="bio-avatar"
-        layout="fixed"
-        formats={["AUTO", "WEBP", "AVIF"]}
-        src="../images/profile-pic.jpg"
-        style={{}}
-        width={200}
-        height={200}
-        quality={95}
-        alt="Profile picture"
-      />
+      <div>
+        <StaticImage
+          className="bio-avatar centered"
+          layout="fixed"
+          formats={["AUTO", "WEBP", "AVIF"]}
+          src="../images/profile-pic.jpg"
+          width={200}
+          height={200}
+          quality={95}
+          alt="Profile picture"
+        />
+        {resume && (
+          <ButtonContainer>
+            <ButtonLink href={resume} target="_blank">
+              <Button>Resume</Button>
+            </ButtonLink>
+          </ButtonContainer>
+        )}
+      </div>
       <Description>{children}</Description>
     </FlexContainer>
   )
