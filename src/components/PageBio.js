@@ -29,8 +29,10 @@ const Description = styled.div`
   flex-grow: 1;
   align-items: center;
   display: flex;
+  margin-left: 1em;
 
   @media (max-width: 767px) {
+    margin-left: 0;
     margin-top: 1em;
   }
 `
