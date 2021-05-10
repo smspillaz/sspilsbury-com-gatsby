@@ -2,6 +2,7 @@
 title: Remote Work
 date: "2021-05-08"
 description: "its complicated"
+post: true
 ---
 
 Before 2020, remote work was still kind of a niche thing. Outside of
@@ -18,7 +19,7 @@ that some can't wait to get rid of.
 
 As usual, the reality, I think, depends on context. If people learned anything in 2020, you can't
 just take your regular office job, send the workers to work from their home office in exactly the same
-way, and call it a day. Remote needs an entirely different *style* of working to work well and it
+way, and call it a day. Remote needs an entirely different _style_ of working to work well and it
 also suits some types of work much better than others.
 
 # A history of anecdotes
