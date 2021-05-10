@@ -4,7 +4,7 @@ title: Research History & Interests
 name: research
 ---
 
-<bio>
+<bio resume="https://sspilsbury-com-images.s3.amazonaws.com/pdf/sspilsbury-resume-research.pdf">
     <div>
     <div>
         I am currently doing my PhD at the <link external to={'https://aalto.fi'}>Aalto University School of Science</link>, supervised by Professor of Practice <link external to={'https://users.aalto.fi/~alexilin/'}>Alexander Ilin</link>.

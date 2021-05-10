@@ -4,7 +4,7 @@ name: hire
 title: Hire
 ---
 
-<bio>
+<bio resume="https://sspilsbury-com-images.s3.amazonaws.com/pdf/sspilsbury-resume.pdf">
     <div>
     <div>
         Currently I work full-time as a Doctoral Candidate at the Aalto University School of Science.
