@@ -11,7 +11,7 @@ name: research
     </div>
     <br />
     <div>
-        My PhD topic is "Sample Efficient Deep Learning by Hierarchical Transfer".
+        My PhD topic is "Sample Efficient Deep Learning by Higher-Level Transfer".
     </div>
     </div>
 </bio>
