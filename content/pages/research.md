@@ -30,6 +30,9 @@ Some other key ideas that I think are important in this field are [disentangleme
 [planning](https://towardsdatascience.com/reinforcement-learning-model-based-planning-methods-5e99cae0abb8) and
 [hindsight](https://arxiv.org/abs/1707.01495).
 
+I'm also interested in the overlap between law, policy and AI, though this isn't planned
+as a part of my PhD.
+
 Prior to my PhD I wrote my [Master Thesis](https://sspilsbury-com-images.s3.amazonaws.com/pdf/sspilsbury-master-thesis.pdf) for Curious AI on applying [Neural Model Predictive Control](https://arxiv.org/abs/1903.11981) to the [Tennessee Eastman Problem](http://users.abo.fi/khaggblo/RS/McAvoy.pdf), an industrial process control benchmark.
 
 Prior to my Master Thesis I was on the Doctoral Track at Aalto, where I worked as a
