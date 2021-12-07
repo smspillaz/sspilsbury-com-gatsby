@@ -158,9 +158,9 @@ because their certificate of vaccination was "reliable" and therefore
 they are vaccinated, but then is
 not permitted to use a restaurant, use many public facilities or
 attend gatherings of more than 20 people, because their certificate
-of vaccination is not compatible with the scanning system and therefore they are "unvaccinated" (The restaurants association has since [clarified](https://www.mara.fi/ajankohtaista/jasenohjeet/kolmansista-maista-tulevien-matkailijoiden-koronatodistukset-kelpaavat-tuoreen-linjauksen-mukaan-koronapassiksi.html) that vaccination certificates
+of vaccination is not compatible with the scanning system and therefore they are "unvaccinated" (The restaurants association has since [clarified](https://www.mara.fi/ajankohtaista/jasenohjeet/kolmansista-maista-tulevien-matkailijoiden-koronatodistukset-kelpaavat-tuoreen-linjauksen-mukaan-koronapassiksi.html) to its own members that vaccination certificates
 from third countries are "fine", though it is unclear what their legal
-basis for making that statement was, given that the [relevant law](https://finlex.fi/fi/laki/ajantasa/2016/20161227) quite clearly states that only
+basis for making that statement was, given that the [relevant law](https://finlex.fi/fi/laki/ajantasa/2016/20161227#L6P58i) quite clearly states that only
 the EU certificate may be used). The same issue also exists in
 New South Wales in Australia, where only the NSW certificate is usable.
 
