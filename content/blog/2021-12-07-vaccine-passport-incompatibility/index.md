@@ -38,7 +38,7 @@ likely to need to contend with:
 ## Recognition
 
 Regarding the first question, it appears as though the following
-vaccine products enjoy the most travel privileges:
+vaccine products enjoy the most travel privileges, either because they've received local use approval, [or emergency use authorization by the WHO](https://en.wikipedia.org/wiki/List_of_COVID-19_vaccine_authorizations):
 
  1. Comirnaty (aka Pfizer-BionTech)
  2. Spikevax (aka Moderna)
