@@ -104,17 +104,20 @@ as to who is "vaccinated" based purely on technical compatibility. Within
 some states, this isn't too bad - in the
 [USA](https://www.cdc.gov/coronavirus/2019-ncov/travelers/proof-of-vaccination.html#covid-vaccines) any document that looks
 like it came from an official source, specifies the name of the product,
-specifies the date of the final dose and is tied to some sort of personal identifier. In the [UK](https://www.gov.uk/guidance/countries-with-approved-covid-19-vaccination-programmes-and-proof-of-vaccination)
+specifies the date of the final dose and is tied to some sort of personal identifier is acceptable. In the [UK](https://www.gov.uk/guidance/countries-with-approved-covid-19-vaccination-programmes-and-proof-of-vaccination)
 there is a fairly long list countries and
-acceptable corresponding documentation. At Schengen borders, its a mess.
+acceptable corresponding documentation.
+
+At Schengen borders, its a mess.
 For example, [Norway](https://www.regjeringen.no/en/topics/koronavirus-covid-19/travel-to-norway/id2791503/?expand=factbox2871368)
 accepts only the EU certificate, an [equivalent certificate which implements the same technical specifications as the EU one](https://ec.europa.eu/info/publications/commission-implementing-decisions-eu-equivalence-covid-19-certificates-issued-non-eu-countries_fi) (for which there
 is a small list of countries) or the NHS or Northern Ireland
-certificate. Everyone else is unvaccinated even if they are vaccinated. This
+certificate. Everyone else is "unvaccinated" even if they
+are in fact vaccinated with an approved product. This
 has led to, for example, Australia, issuing a [travel advisory](https://www.smartraveller.gov.au/destinations/europe/norway)
 clarifying that their "international certificate of vaccination" is not 
-recognized as valid in Norway, and therefore anybody presenting
-an Australian certificate is treated as unvaccinated, even though it could be confirmed with
+recognized as valid in Norway, and therefore anybody vaccinated in Australia and presenting
+an Australian certificate is treated as "unvaccinated", even though it could be confirmed with
 roughly 30 seconds of internet searches both Norway and Australia use the
 same vaccine products. The reason for this isn't that there is anything
 wrong with Australia's vaccination programme or even the reliability
@@ -122,7 +125,7 @@ of its certificates, but rather that Australia doesn't use the same
 system for signing their certificates as is done in the the EU.
 
 Particularly on the documentation front, what is maddening about this is
-that the airline industry IATA already foresaw this issue and proposed
+that the airline industry body IATA already foresaw this issue and proposed
 a [single universal standard that everyone could use](https://www.iata.org/en/programs/passenger/travel-pass/). Which was then promptly ignored in
 favour of incompatible locally produced solutions.
 
@@ -160,16 +163,17 @@ from third countries are "fine", though it is unclear what their legal
 basis for making that statement was, given that the [relevant law](https://finlex.fi/fi/laki/ajantasa/2016/20161227) quite clearly states that only
 the EU certificate may be used). The same issue also exists in
 New South Wales in Australia, where only the NSW certificate is usable.
+
 Some areas recognize this problem and offer a mechanism
 to convert foreign certificates to local ones (with varying levels of
 stringency on the requirements of the original certificate to do so),
-other states [don't offer any solution at all](https://www.espoo.fi/en/news/2021/11/capital-region-municipalities-do-not-issue-eu-covid-certificates-vaccines-administered-abroad), or [only offer it to nationals or residents](https://www.servicesaustralia.gov.au/individuals/subjects/getting-help-during-coronavirus-covid-19/covid-19-vaccinations/how-get-help-proof/help-adding-overseas-vaccinations). If one is unable to
-convert their foreign documentation to local documentation, then
-they are "unvaccinated" and can only fix that problem either
-with a workaround or by getting vaccinated again, assuming
-that they're eligible (which isn't always the case).
+other states [don't offer any solution at all](https://www.espoo.fi/en/news/2021/11/capital-region-municipalities-do-not-issue-eu-covid-certificates-vaccines-administered-abroad), or [only offer it to nationals or residents](https://www.servicesaustralia.gov.au/individuals/subjects/getting-help-during-coronavirus-covid-19/covid-19-vaccinations/how-get-help-proof/help-adding-overseas-vaccinations).
 
-This has again resulted in workarounds that are now in use.
+If one is unable to
+convert their foreign documentation to local documentation, then
+they are "unvaccinated" and can only fix that problem by getting vaccinated again, assuming
+that they're eligible to be vaccinated in that location (which isn't always the case). Or they'll need use an "unofficial workaround".
+
 For example, those who want
 an EUDCC certificate for use in a state in the EU can apparently book
 a refundable travel package to Switzerland, then
