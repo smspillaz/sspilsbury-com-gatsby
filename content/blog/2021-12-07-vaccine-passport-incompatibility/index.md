@@ -186,7 +186,6 @@ be valid in state A, even though state A won't accept a proof from state C.
 Makes perfect sense.
 
 As a software engineer, all of this technical incompatibility is maddening 
-in the sense that it could have easily been both foreseen and solved with a 
-co-operating on international standards that were already proposed. But alas,
+in the sense that it could have easily been both foreseen and solved by implementing international standards that were already proposed. But alas,
 everyone wanted to have their own solution, so now we live in a world where 
 that has happened.
