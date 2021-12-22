@@ -5,6 +5,10 @@ description: On the pitfalls of jumping to technical solutions for social proble
 post: true
 ---
 
+**Update 22/12/21**: Sense prevails, and a [new law](https://stm.fi/en/-/covid-19-certificates-issued-outside-the-eu-to-be-accepted-as-covid-19-passports-in-finland-as-of-23-december)
+is passed ensuring that third country certificates are now accepted in all cases. This post remains
+as a reminder of what can go wrong when sticking to rigid technical approaches to solving such problems.
+
 Following suit with many other EU states, the COVID-19 passport now has wider use in Finland. The most
 recent move is that [all organized events in the capital area with more than 20 participants must now require
 the COVID-19 passport as a condition of entry (finnish link)](https://www.hs.fi/kaupunki/art-2000008449895.html).
