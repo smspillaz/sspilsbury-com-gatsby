@@ -87,6 +87,12 @@ module.exports = {
           `gatsby-remark-copy-linked-files`,
           `gatsby-remark-smartypants`,
         ],
+        remarkPlugins: [
+          require('remark-math'),
+        ],
+        rehypePlugins: [
+          [require('rehype-katex'), { strict: 'ignore' }],
+        ],
       },
     },
     `gatsby-transformer-sharp`,

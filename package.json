@@ -32,6 +32,8 @@
     "react-helmet": "^6.1.0",
     "react-on-screen": "^2.1.1",
     "react-resize-detector": "^7.1.2",
+    "rehype-katex": "^5.0.0",
+    "remark-math": "^3.0.1",
     "styled-components": "^5.3.5",
     "three": "^0.142.0",
     "typeface-merriweather": "1.1.13",
