@@ -70,13 +70,13 @@ export const BackgroundAnimation = makeAnimatedCanvas({
       const positions = new Float32Array(curvePoints[index].length * 3)
       const indices = new Float32Array(curvePoints[index].length)
       line.geometry.setFromPoints(curvePoints[index])
-      line.geometry.addAttribute(
+      line.geometry.setAttribute(
         "position",
         new THREE.BufferAttribute(positions, 3).copyVector3sArray(
           curvePoints[index]
         )
       )
-      line.geometry.addAttribute(
+      line.geometry.setAttribute(
         "lineIndex",
         new THREE.BufferAttribute(indices, 1).copyArray(
           [...new Array(curvePoints[index].length)].map(() => index)
