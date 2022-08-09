@@ -1,0 +1,604 @@
+---
+title: "Trip Report: NAACL 2022"
+date: "2022-08-06"
+description: Common themes and takeaways from NAACL 2022
+post: true
+---
+
+I recently attended [NAACL 2022](https://2022.naacl.org), the North American Association
+of Computational Linguistics conference, as a [poster presenter](../2022-07-19-compositional-generalization-and-parsimony-a-paper-at-naacl/). I have
+[another meta-post](../2022-07-14-advice-for-attending-an-in-person-conference-from-a-first-time-conference-attendee/) on my learnings about conferences *in general*, but in this post
+I'll go over what I thought were the more interesting *technical* parts of the conference.
+
+# Themes
+
+There were many different tracks covered at the conference, I won't try to summarize
+everything, the themes in **bold** are the ones which will be summarized later.
+
+ - Computational Social Science
+ - Dialogue and Interactive Systems
+ - **Efficient Transformers and other methods**
+ - Ethics
+ - Human-Centered Design
+ - Industry Applications
+ - Information Retrieval
+ - Interpretability
+ - **Language Grounding**
+ - Linguistics Theories and NLP
+ - Machine Translation
+ - **Multimodality**
+ - Question Answering
+ - **Semantics**
+ - Speech
+ - Summarization
+ - **Text Generation and Editing**
+ - **Low Resource NLP**
+
+## Text Generation and Editing
+
+### Tutorials
+
+The main event here was a [tutoral](https://aclanthology.org/2022.naacl-tutorials.1.pdf)
+by [Eric Malmi](https://ericmalmi.com/) (an almunus of Aalto!) and
+colleagues on Text Editing models. In contrast to generation and sequence-to-sequence
+methods, text-editing models are concerned with classes of problems where there
+is a large degree of overlap between the source and target sequences. These sorts
+of problems come up in for example grammatical error correction, style transfer and
+summarization. In text editing problems, different priorities exist compared to typical 
+text generation. Those include *faithfulness to the original text*, *controllability*,
+as well as data efficiency and latency.
+
+The most straightforward method for learned text editing is a typical sequence-to-sequence
+model, such as a Transformer. Unfortunately, Transformers are known to be data-hungry
+models. They can also have significant latency at inference time because each decoded 
+token needs to be fed back into the decoder self-and-cross-attention layers.
+And despite strong *average* performance on benchmarks such as SQuAD, we don't
+really have any guarantee on an *instance level* about faithfulness to the original text.
+Inventing extra (undesired) content, also known as hallucination, remains a problem.
+There's also not really a method of controlling or constraining sequence-to-sequence models,
+other than through conditioning through the encoder sequence (though see
+[Dathathri et al on Plug and Play Language Models](https://arxiv.org/abs/1912.02164)
+for an approach to doing this with regular transformers and an auxiliary classifier).
+
+Different aspects and design choices in text-editing models were discussed. For example:
+
+ - **Tagging Architecture**: This concerns the *output space* of the model. Many well-known
+ text editing models like Levensthein Transformer, LEWIS,
+ [FELIX](https://aclanthology.org/2020.findings-emnlp.111/) and LaserTagger
+ all use per-token tagging. In these models, each token is tagged with some operation,
+ for example `KEEP` or `REPLACE`, then there is some other part of the model which
+ generates *new* tokens conditioned on the old token and the edit operation. Where the
+ models differ is in what sort of edit operations exist and how that constrains the
+ output vocabulary. Hallucination is still a problem whenever generating text, so
+ approaches like LaserTagger fight that by building a large phrase book of replacements,
+ then picking corrections only from the phrasebook. Clearly this has the limitation of
+ requiring a very large phrasebook to get good performance. On the other hand, GeCTOR
+ and PIE have a large number of available edit operations, which when chosen, admit
+ a small number of replacement tokens.
+ - **Decoder**: There are many different decoder architectures available. The
+ simplest choice is "feedforward", where every token in the encoded input
+ is tagged independently, then tokens are generated later as appropriate. This
+ is very fast, much faster than any other method, since the tagging can happen in
+ parallel. However it makes some classes of edits more difficult to model, especially
+ if the edit at token $i$ is conditionally dependent in some way on what happens
+ at $i - 1$. Autoregressive decoding handles this, but this comes at the cost
+ of a significantly higher inference time latency, since decoding operations
+ are effectively serialized (and the same inference logic is repeated many times).
+ Another form of decoding is known as "**iterative refinement**" and is used in
+ [Awasthi et al 2019 (Parallel Iterative Edit Models for Local Sequence Transduction)](https://aclanthology.org/D19-1435.pdf), aka the PIE model,
+ which use a feedforward decoder *recursively* - that is, using its own edits at
+ iteration $i - 1$ as the input for iteration $i$.
+ - **Controllability**: Controllability in edit models ties in a lot with the choice
+ of tagging architecture used and restrictions placed on the output vocabulary. Some
+ good heuristics for ensuring that the output text is faithful to the source are
+ to enforce re-use of input spans, restricting the output vocabulary size etc, biasing
+ the likelihood of certain edit types, for example KEEP (as is done in GECToR).
+ - **Datasets**: There's lots of grammatically correct text out there and even more
+ grammatically *incorrect* text. But not a whole of text where we have both grammatically
+ incorrect text and gold labels for correct versions. Sometimes its hard to define what
+ the grammatically correct version might even *be*, because there are many "right"
+ answers. Good enough solution for now is to take a grammatically correct
+ dataset and introduce known grammatical errors into it, following the error distribution
+ of some known correction dataset. A version of Common Crawl (C4) has been produced
+ with 200 million synthetically introduced errors, see [Stahlberg et al (Synthetic Data Generation for Grammatical Error Correction Models)](https://arxiv.org/abs/2105.13318).
+ Synthetic data generation isn't a solved problem though. For example, it is difficult
+ to generate errors that are caused by long-term dependency mismatch, for example
+ pronoun, possessive or tense agreement.
+ - **Latency**: Much of this is related to the section on Decoders above, but one
+ thing pointed out here is that the difference in latency between the encoder
+ and decoder is huge, like a factor of 10 difference on typical sentences. So
+ if you care about latency, trying to make the encoder faster doesn't make much
+ sense and instead its better to focus on on the decoder, either by reducing the
+ number of decoder steps or reducing the latency at each step.
+
+### Generation and Decoding
+
+There were also many papers presented at the main conference on the broader topic of
+generation.
+
+A big theme this year was controllable generation and decoding. The typical method
+for doing decoding and generation is autoregressive decoding, where then chosen
+token at index $i$ is the one with the highest log-likelihood conditioned on
+the previously decoded tokens ($\log p(t_i|t_{i - 1}, ..., t_0)$). A commonly
+used extension of this is beam search, where the decoding method maintains
+$k$ "beams" and for each "beam" we pick the top $l$ tokens with the highest
+conditional log-likelihood, then out of those $kl$ nodes, we pick the top $k$
+beams with the highest log-likelihood sum
+($\sum_{j \le i} \log p(t_j|t_{j - 1}, ..., t_0)$). A drawback of these methods
+is that they only account for perplexity, and while they can be extended to
+account for other metrics too, they're not very flexible. In beam search
+for example, performance can depend a lot on the number of beams $k$
+and the beam width $l$. There are also other decoding methods as well,
+such as the diffusion-inspired [Austin et al. D3PM](https://arxiv.org/abs/2107.03006)
+which was presented at NeurIPS 2021.
+
+A best paper award was given to [Lu et al. (NeuroLogic A*-esque decoding: constrained text
+generation with lookahead heuristics)](https://arxiv.org/abs/2112.08726).
+As the title suggests, this paper proposes to use the A* graph search algorithm as part of the decoding process, enabling flexible cost-guided generation with a smaller computational budget than maintaining a large beam width. Another paper presented was 
+[Chaffin et al. (PPL-MCTS: Constrained Textual Generation Through Discrimiantor-Guided MCTS Decoding)](https://doi.org/10.18653/v1/2022.naacl-main.215).
+This was a similar paper, which addresses the controllable generation problem through monte-carlo tree
+search. The point of this method is that there are some metrics (for example,
+how much you're repeating yourself, or how "toxic" some statement is likely
+to be) which you can only reliably estimate once you've expanded nodes to a sufficient 
+depth. In that sense, it is similar to why we might want to use MCTS for model-based
+planning problems. MCTS gives you a way of estimating the value of the next chosen
+token based on simulated rollouts of future states.
+
+A nice observation from these controlled generation papers is that controlled generation
+is sort of like an alternative to fine-tuning. This was also an observation in
+the [PPLM](https://arxiv.org/abs/1912.02164) paper; the basic idea is that if we have
+some large language model, it might be easier to train a discriminator to evaluate
+whether or not the generated statement is has some characteristics of what you want.
+This is because the language model might actually know how to generate what you want,
+but the input prompts aren't enough to give those utterances a high likelihood.
+This is related to an idea put forward in Jacob Andreas' talk, where it was
+stated that large language models could be considered to have many different
+"speakers" and generating the right utterances can be a matter of just finding
+the right speaker.
+
+### Loss functions for Generation
+
+There were also some talks on loss functions for language generation. Standard
+language modelling uses the cross-entropy loss on next-word prediction. But
+sometimes there can be permutations of a statement that mean the same thing
+and cross-entropy loss quite heavily penalizes anything that isn't an exact
+match, even if there's a large degree of overlap between the generated
+and target sequence. [Liu et al. (Don't take it Literally: An Edit-Invariant Sequence Loss for Text Generation)](https://arxiv.org/abs/2106.15078) try to deal with
+this problem with a novel loss function (EISL) that computes matching loss
+of n-grams. The idea is sort of similar to a convolutional networkm - we take
+n-grams in the target sequence and slide that over the generated sequence,
+computing the loss each time, weighting each computed loss with reference to
+the expected position of the n-gram in the generated sequence. This is quite
+nice in the sense that there's a connection to the BLEU metric, which itself
+also computes the matching score of all 1, 2, 3 and 4-grams between the source
+and the target.
+
+## Multimodality
+
+There was a tutorial on multimodality by [JP Morency](https://www.cs.cmu.edu/~morency)
+and [Paul Liang](https://www.cs.cmu.edu/~pliang/). It was divided into a few different
+sections, each going into some detail about the core technical challenges and approaches
+taken for each.
+
+ - **Representations**: Usually if we have multimodal inputs we want to make some 
+ representation of all modalities, **fused** together in some way. There's late fusion
+ and early fusion, which refers to whether the modalities are processed independently
+ of each other (late) or whether they are processed with reference to each other
+ and the *interaction* between influences the processing of each modality (early,
+ like [FiLM](https://arxiv.org/abs/1709.07871)). Then in the field of early
+ fusion, there are all sorts of techniques for computing interactions, like
+ Attention, [Gated Fusion](https://arxiv.org/abs/1702.01992), Bilinear Interpolation
+ and even something called [Tensor](https://arxiv.org/abs/1707.07250) [Fusion](https://arxiv.org/abs/1806.06176), which can be computed efficiently by
+ [decomposition into low-rank tensors](https://arxiv.org/abs/1806.00064). Then there
+ is the question of whether everything should live in one representation space, or
+ separate representation spaces with a known projection function to **coordinate the representations**,
+ like Canonical Correlation Analysis. There's also an interesting 
+ angle on contrastive learning here, where [CLIP](https://arxiv.org/abs/2103.00020) can 
+ be seen as a coordination function which learns projections for representations in
+ both the vision and text space such that they are close in latent space. There was also 
+ something totally new to me called **Representation Fission**. In this case, you try
+ to learn a representation for each modality such that there is disentanglement, eg,
+ information that is *only* in the text modality can *only* be found in the text
+ represention, and likewise for the image modality. An example of this might be
+ that an image and text both describe the same thing, but the text representation
+ captures mainly the linguistic style or features, whereas the visual representation
+ captures the image style and the joint representation captures the shared concept. 
+ - **Alignment**: This is the challenge of identifying correpsondences between 
+ modalities. For example object labelling using words in the sentence or cross-attention
+ like LXMERT or UNITER. Usually the purpose of alignment is to make better
+ representations by removing redundancy and encoding the connection between the 
+ modalities. Alignment also assumes that elements are sufficiently disentangled in the 
+ source modalities, for example whether that be objects in an image, or words in a
+ sentence and so on. If you don't have this, then you need a disentangled latent 
+ representation. Then there's the question of how to compute the alignment, with
+ examples including Dynamic Time Warping, Optimal Transport, Graph Networks
+ amongst others.
+ - **Reasoning**: Many multimodal tasks can involve some element of reasoning. For 
+ example, visual question answering and instruction-following can require this.
+ Reasoning should "go beyond just fusion" in the representations such that the
+ representations happen to correlate with whatever the right answer is, rather there
+ should be some more explicitly interpretable or robust process. The first
+ step is to learn the relationships between the elements of the modalities and
+ their overall structure. Structure could be for example in time or along
+ elements of a list in some order, in which case you would want to use a memory
+ based approach. Or the structure could have some hierarchy, where you want to
+ replicate the hierarchy in one modality in the other modality (see
+ [Hong et al. 2022 - Learning to Compose and Reason with Language Tree Structures for Visual Grounding](https://doi.org/10.1109/TPAMI.2019.2911066)).
+ Once you have a structure, you will want to do infernece over that structure in a 
+ robust manner, for example logical inference ([Gokhale 2020. VQA-LOL](https://arxiv.org/abs/2002.08325))
+ or even better, *causal inference* ([Agarwal et al. 2020, Towards Causal VQA](https://arxiv.org/abs/1912.07538)),
+ but learning causal models
+ requires datasets that support interventions. There's also the subfield of incorporating
+ information fetched from [external knowledgebases](https://arxiv.org/abs/1507.05670) into
+ your representations or causal reasoning process, see for example ([Gui et al. 2021, KAT: A Knowledge Augmented Transformer for Vision and Language](https://arxiv.org/abs/2112.08614)).
+ - **Generation**: Once you have understood the inputs, you might want to generate some
+ outputs in one or more modalities. A very well-known generative model is
+ [OpenAI's DALL-E 2](https://arxiv.org/abs/2204.06125). But there are lots of
+ other approaches, like the VQ-VAE encoder-decoder used in the original
+ [DALL-E](https://arxiv.org/abs/2102.12092) paper. One interesting paper here is
+ [Tsai et al. 2019, Learning Factorized Multimodal Representations](https://openreview.net/forum?id=rygqqsA9KX),
+ which enables generation to more content than the model
+ started out with, because it learns *factorized* representations of the input
+ (into "multimodal discriminative factors" and "modality-specific generative factors",
+ where the latter are unique for each modality). An application of this is SVHN / MNIST
+ style transfer, eg, the first modality is SVHN and the second modality is MNIST.
+ - **Transferrence**: If we learned a lot of things frm one modality, we might want to
+ transfer that information to the other modality in some way. Asides from the
+ standard multimodal transformers like UNITER, LXMERT and PerceiverIO, one
+ other line of work is [HighMMT](https://arxiv.org/abs/2203.01311), which extends
+ PerceiverIO by training with tasks in multiple output modalities as well,
+ which are not shared amongst all the tasks. There's also the idea of co-learning,
+ where multiple modalities are used at training time and only one modality is used
+ at test time. To ensure that both modalities are used, one approach is to
+ predict the second modality from the first one, and vice versa as a
+ form of cross-reconstruction loss (See, [Pham et al. 2019, Found in Translation: Learning Robust Joint Representations by Cyclic Translations between Modalities](https://doi.org/10.1609/aaai.v33i01.33016892))
+
+### Multimodal Workshop
+
+#### Language Grounding
+
+[Yonatan Bisk](https://yonatanbisk.com/) gave a talk entitled "Body and Mind"
+on some open problems in language in robotics and interacting with humans.
+
+The talk started off with the "gap" between simulated, simple environments
+and "realistic" rich environments (or even real robots). In simple environments
+we're able to do things with quite complex language, in real environments
+we're able to do things with very constrained goal, state or action spaces. Then
+there's a gap between the two where performance is still very bad. The problem
+is that there are a lot of difficult problems all at the same time, or in other
+words, the problem is everything.
+
+One benchmark is [ALFRED](askforalfred.com), which is a suite of
+vision-language navigation
+environments with rich observations, temporally extended goals and a simple
+action space. Baseline performance here isn't great and performance on
+"unseen environments" is much worse. However, there have been recent
+advances which have helped! [Speaker-Follower (Fried et al 2018)](https://arxiv.org/abs/1806.02724)
+demonstrates a way to make natural language descriptions of
+a trajectory, which can help with breaking things down into subtasks. [Tactical Rewind](https://arxiv.org/abs/1903.02547)
+provides a mechanism to do backtracking. [Progress Monitor](https://arxiv.org/abs/1901.03035) shows
+how to keep track of what has actually been done. [Environmental Dropout](https://arxiv.org/abs/1904.04195)
+improves robustness to new environments. There's also [Bayesian State Tracking](https://arxiv.org/abs/1907.02022)
+for learning planning by imitation and [VLN-BERT](https://arxiv.org/abs/2004.14973) to query a knowledgebase
+on how to perform new tasks.  Then there's there's [Look Wide and Interpret Twice](https://arxiv.org/abs/2106.00596) 
+which does planning first in the abstract space, then with reference to the
+visual instructions. [FILM](https://soyeonm.github.io/FILM_webpage/)
+which helps with mapping in partially observable situations
+and [AMSLAM](https://openreview.net/forum?id=PtuQ8bk9xF5)
+which accounts for affordances in semantic representations.
+
+The things which really help in these types of problems roughly align with our
+intutions about what might make these problems difficult for humans. For example,
+the challenge of partial observability can be dealt with by mapping exploration
+(SLAM). Then the challenge of alignment and keeping track of subtasks can be dealt
+with by appropriate memory architectures and subgoal planners.
+
+The other part of the talk looked at mental models and language as a mode of
+communication. In particular, what if instead of exploration, we could ask for
+help. An example of this is how humans interact; if we need to find something
+in the kitchen, we don't go searching every cupboard and drawer for it, instead
+we ask someone else if they know where the knife is. This is a harder problem
+than it looks, because in order to do this you have to know your own limits,
+then know **what** to ask for, and **who** to ask and **how** to ask it. A
+few different papers were talked about here, including
+[(Zhu 2022, Language Learning from Communicative Goals and Linguistic Input)](https://escholarship.org/uc/item/7p65n371)
+which fomulates language as a communicative game and [(Roman 2020, RMM)](https://arxiv.org/abs/2005.00728)
+which extends POMDP with a stack for recurisve dialogs.
+
+#### Reading to Learn
+
+[Victor Zhong](https://www.victorzhong.com/) gave a talk on in-context learning
+when it comes to vision-language problems. The main hypothesis of the talk was
+that there's a interactive problems where we don't have actual demonstrations
+but we have text descriptions of what to do and how the rules work in
+a symbolic space. Can we learn to leverage that information somehow in order
+to transfer to new environments? Or in other words, can we learn how to read
+to learn.
+
+Victor talks about the [RTFM](https://arxiv.org/abs/1910.08210) environment
+where you have a simple grid world in which the dynamics shift on every episode.
+In the grid world you have two monsters
+and two items. One of the items can be used to defeat one of the monsters. On
+every episode the pairings and the goal change. In addition to the state
+observations you have a "manual" which tells you which item beats which monster
+(sometimes through some level of indirection), then you are asked to defeat
+one of the monsters. On the test data there are unseen dynamics, so
+the point of the task is to learn to read the manual and determine the dynamics.
+There's some evidence to suggest that learning in this way can generalize a bit
+better later on.
+
+This is then extended with the [SiLG](https://arxiv.org/abs/2110.10661)
+environment, which is really just an
+amalgamation of several text-based environments and corresponding manuals and
+descriptions, such as [RTFM](https://arxiv.org/abs/1910.08210),
+[Messenger](https://openreview.net/forum?id=udbMZR1cKE6)
+and others.
+
+Victor also talks about how it might be better to learn policies in the abstract
+symbolic space, then figure out a way to transfer these to other environments
+later on. This is what
+[TextWorld](https://www.microsoft.com/en-us/research/project/textworld/)
+and [ALFWorld](https://alfworld.github.io/) try to do. In
+ALFWorld there is a paired text-based environment and embodied environment.
+The text based environment is solveable on its own without reference to the
+embodied environment. The idea behind this is to learn to solve the problem
+in the text-world first, then learn how how to describe observations and
+actions in the real world using text. If we can do this, then we can
+learn in other text worlds and transfer that to the real world using our
+transfer mechanism. The paper shows that you can do a little better on
+the unseen environments in this way.
+
+Victor also motivates a little in the talk about how there's a lot of real
+world data that could be used by this approach. For example, there are lots of
+tutorial videos on how to do something with Photoshop, or how to cook a
+particular dish. These can be used to link observations in the real world to
+textual descriptions of what is happening at each step. There is even more data
+which explains in the purely symbolic space (eg in text) how to do certain
+tasks, for example recipe websites, instruction manuals or even legal policies
+or guidelines.
+
+#### Compositional Image Generation and Transformers
+
+[Drew Hudson](https://cs.stanford.edu/~dorarad/#others) gave a talk on inductive
+biases for compositionality, especially in image generation. She started out
+with a demonstration of how foundational models, such as CLIP and DALL-E 2
+could fail in peculiar ways. They are sensitive to small changes in their input
+and aren't much better than chance when it comes to compositional scene
+generation and modelling relations between objects. There's even an entire
+benchmark suite called [Winoground](https://arxiv.org/abs/2204.03162) which
+most models are failing pretty badly at. She refers to them as
+effectively "bags of concepts". The main problem is reliance on convolutions.
+Convolutions are great, since they're translation invariant and also can be
+implemented efficiently, but they only have a local receptive field and
+its hard to capture long-range dependencies between finer features. One
+example of this is that GANs can produce a face consistently, even though
+the face spans most of the image, but the eye colours may not be consistent. The
+problem gets even harder when there are dependencies across frames, for example
+with video.
+
+Transformers seem to be a better architectural choice when you want to model
+these sorts of dependencies, but computational complexity is a bottleneck.
+[Vision Transformers](https://arxiv.org/abs/2010.11929) solve this problem
+in a hacky way by either heavily downsampling, or slicing up the image into
+patches and doing attention between encoded patches.
+
+In the context of image generation, first the [GANFormer](https://arxiv.org/abs/2103.01209)
+model is discussed. This model is sort of like [PerceiverIO](https://arxiv.org/abs/2107.14795)
+and other inducing point methods like [Set Transformers](https://arxiv.org/abs/1810.00825),
+but are extended using a method called "Bipartite Attention".
+The main difference to the inducing point methods is that the attention goes
+both ways - so instead of the image features only being the queries and values
+and the inducing points (referred to as latents in the talk) being the keys,
+the same is also true in reverse. In the paper this this bipartite attention is
+described as having a similar foundation to k-means or [VQ-VAE](https://arxiv.org/abs/1711.00937).
+The GAN part comes in where instead of the latents being parameters
+of the model like in Perceiver, they are instead sampled by the generator,
+then attend to pixels of the image at the current layer, which are then upsampled 
+using a convolution. The authors of that paper also did some interpretation of the
+attention maps and found that the attention between the latents and the generated
+images revealed some level of correspondence between contiguous regions of the
+image corresponding to specific textures and the latents.
+
+The compositional inductive bias was improved in [GANFormer 2](https://arxiv.org/abs/2111.08960).
+In this paper a stronger inductive bias is built in to the same model
+by leveraging other models for scene decomposition and depth estimation as intermediary steps.
+The latents are used to predict the layout and depth ordering, then once those are predicted
+(the planning stage), we move on to the execution stage where the latents generate only the
+region that they are responsible for. With this we can dynamically add and remove objects by
+adding and removing latents, or changing their properties to affect their ordering etc.
+
+## Semantics
+
+### Models of Meaning
+
+[Jacob Andreas](https://www.mit.edu/~jda/) gave a talk called
+"Models of Meaning". Unfortunately
+I only came in part-way through and the recording of the talk is not available.
+The talk was about inferring meaning from language. Models often fail
+when the task is $p(\text{state}|\text{text})$. There are many different
+failure modes, curiously sometimes the model won't even use the ground truth
+state that was provided if the state is something different to what it knows.
+
+Things that might be helpful in these situations are inferring latent
+semantic states through hindsight.
+
+There was also some discussion of what it means to use language models as
+as knowledge bases. The main problem with this is that language models
+have lots of mutually incompatible beliefs, and it depends on
+which "speaker" in the model that you're talking to as to what belief
+about the world that you're going to get.
+
+### Causality and Compositionality
+
+[Jacob Eisenstein](https://jacobeisenstein.github.io/) presented
+[Informativeness and Invariance: Two Perspectives on Spurious Correlations in Natural Language](https://arxiv.org/abs/2204.04487) at one of the poster sessions.
+The idea is that we can use causal graphs to generate datasets with spurious
+correlations and without spurious correlations. [Linlu Qiu](https://linlu-qiu.github.io/)
+gave a talk on [Improving Compositional Generalization with Latent Structure and Data Augmentation](https://aclanthology.org/2022.naacl-main.323).
+The general idea was to induce a generative model with a quasi-synchronous
+context free grammar backbone from the training data, then use that to generate
+more training data by recombining using that grammar. This works well on
+problems that are relatively structured. Ayush Chakravarthy also presented
+[Systematicity Emerges in Transfromers when Abstract Grammatical Roles Guide Attention](https://aclanthology.org/2022.naacl-srw.1/) in the poster session,
+which proposes to assign grammatical roles (for example `VERB`) to words
+in a sentence, then use those as the keys and queries and the words themselves
+as values, which can help with compositional generalization.
+
+
+## Data Efficiency and Low Resource Languages
+
+[Sebastian Ruder](https://ruder.io/) gave a talk on Deep Learning for Low Resource languages,
+particularly on the challenges that are faced in low-resource settings
+and some possible approaches to improve performance.
+
+Sebastian starts out with challenges all the way at the beginning of the
+NLP pipeline, specifically in subword segmentation. If you have a
+multilingual model, the words in high-resource languages are under-segmented
+and words in low-resource languages are over-segmented. The segmentatons
+also don't align with linguistically useful morphemes. Some solutions to
+this problem are deterministic word segmentation, and probabilistic segmentation
+during training. We can also enforce robustness with a consistency loss over
+different segmentations, so given two segmentations of the same utterance, we
+should get similar predictions on the downstream task, or at least similar
+sentence-level representations. One could imagine this as a kind of
+constrastive learning problem, similar to how
+[SimCLR](https://arxiv.org/abs/2002.05709?context=stat.ML) enforces
+representation similarity across different views of the same image.
+
+There are other inductive biases that you can use to try and boostrap
+the learning process when you don't have much in the way of parallel
+corpora. For example if you have a word-for-word translation dictionary,
+you can make up a subtask where you take some high-resource
+language text, translate the words word-for-word and then use those
+as targets for a machine translation model.
+
+### Adapters
+
+Another area of discussion was
+"[Adapter Layers](https://arxiv.org/abs/1902.00751)". The idea
+behind these is to take some existing transformer model, freeze
+the weights, then insert an "adapter" trainable feedforward network
+with a residual connection on each transformer layer and fine-tune
+the transformer on the target language data using that adapter layer.
+This is a nice approach to multilinguality, because if you want to change
+languages, you can just swap out the adapter without having to
+store information about all languages within the weigths of a
+single transformer. There are lots of different "shapes" of
+adapters, including
+[prefix tuning](https://aclanthology.org/2021.acl-long.353.pdf),
+[LoRA](https://arxiv.org/abs/2106.09685),
+[Parallel Adapters](https://arxiv.org/abs/2110.04366) and
+Scaled Parallel Adapters.
+
+Adapters and fine-tuning also received
+some attention at the "Efficient Methods" oral presentations session.
+[On the Transferrability of Prompt Tuning for Natural Language Processing](https://arxiv.org/abs/2111.06719) by Yusheng Su,
+examines prompt-tuning as an alternative to fine-tuning. The idea is to
+tune some prefix to the prompt so that the model performs better downstream,
+without having to fine-tune the weights. [Adaptable Adapters](https://arxiv.org/abs/2205.01549) by Nafise Moosavi extends on the notion of
+[Adapters](https://arxiv.org/abs/1902.00751) by proposing a sort of generalized
+adapter with a learnable activation function and learnable layer toggle
+with gumbel softmax as opposed to a residual connection.
+
+## Reasoning
+
+One area that was generating a lot of casual discussion was
+["chain of thought prompting"](https://ai.googleblog.com/2022/05/language-models-perform-reasoning-via.html).
+In these models, instead of a model being trained to immediately
+answer a question, it is instead trained to give the reasoning steps,
+then then feeds those reasoning steps back into its context to give either
+further reasoning steps or a final answer. These models can do
+very well on "math-word" problems, for examle
+[PaLM](https://arxiv.org/abs/2204.02311) without
+chain-of-thought prompting gets 17.9% success rate on
+[GSM8K](https://paperswithcode.com/dataset/gsm8k)
+but with chain-of-thought prompting that number improves to 58.1%.
+
+## Compute Efficiency
+
+There was a series of oral presentations on efficient methods in NLP,
+where the themes could be broken down into "efficient" (mostly transformer)
+models which reduce compute or memory complexity by approximating
+what a Transformer does, and "efficiency" in terms of transfer and distillation.
+
+Xiangyang Liu presented ["Towards Efficient NLP: A Standard Evaluation and Strong Baseline"](https://arxiv.org/abs/2110.07038). The main point of this talk
+was to come up with a standardized framework and benchmark for doing
+Pareto-SOTA chasing instead of SOTA chasing. The point of this is to determine
+what approaches are doing well on the same task given a certain function of
+compute budgets. They propose the [ELUE](https://eluebenchmark.fastnlp.top)
+benchmark, which measures performance on a few challenging NLP tasks (sentiment
+analysis, NLI, paraphrasing) as well as FLOPs usage.
+
+On the side of compute and memory efficient architectures, [FNet](https://arxiv.org/abs/2105.03824)
+was presented by James Lee-Thorp. This paper also received a best paper
+award. The presented architecture is another
+alternative to attention by transforming to the frequency domain using
+a 2D discrete fourier transform and extracting the real component,
+then transforming the resulting spectral data by the feedforward layers.
+There's no need to undo the fourier transform at the end of every layer
+because of the duality of the DFT operation, eg, it is in-principle
+the inverse of itself (with a note in the paper that this isn't quite true
+since the DFT is no longer invertible at the point where the imaginary
+component is discarded). All that is required is that you have an even number
+of layers to ensure that the final layer is in time-domain. In that sense,
+the feedforward layers, which apply transformations to the spectral data,
+can be seen as a kind of tunable convolution, since they are doing multiplication
+in the frequency domain. If FFT is used as opposed to DFT, this architecture
+can scale quite well to large input lengths, since it scales $O(n \log n)$.
+The authors of the paper show that it is competitive in terms of latency/accurracy
+tradeoff. It is not quite as accurrate as other Transformer models, but
+is about 70-80% faster at training and inference time in practice.
+
+[KroneckerBERT](https://arxiv.org/abs/2109.06243) presents a
+method of weight compression by
+learning factors to a [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product). =
+By learning the factors to the Kronekcer product, we can reduce memory usage from
+$O(m^4)$ to $O(m^2)$. Compared to spectral compression of weight matrices using SVD,
+this sort of Kronecker decomposition retains most of the performance
+of the transformer, losing only 2 percentage points on accurracy in
+next word predicton. Another model compression paper was
+[Learning to Win Lottery Tickets in BERT Transfer via Task-Agnostic Mask Training by Yuanxin Liu et al.](https://aclanthology.org/2022.naacl-main.428/).
+This paper approaches model BERT model compression through the lens of the
+"lottery ticket hypothesis" and proposes a method to learn a binary mask
+which is optimized by continuing to train on the pre-training task. Then
+this binary mask can be applied to reduce the model size. The paper
+[Sparse Distillation: Speeding up text classification by using bigger student models](https://arxiv.org/abs/2110.08536)
+by Qinuan Ye examined model distillation
+through the perspective of Deep Averaging Networks, eg, averaging embeddings
+of n-grams for tasks like text classification. The idea is to train a big
+language model and then distill into a deep averager by consistency loss.
+Turns out that very simple models like these can perform wtihin a 3%
+gap compared to other methods and run about 600 times faster.
+[Szymon Tworkoski](https://syzymon.github.io/) has been working on
+[hierarchical transformers](https://arxiv.org/abs/2110.13711). In that
+paper, the authors demonstrate how to downsample and upsample
+sequence lengths in a transformer to create the same hourglass
+shape that we're used to seeing in vision models. This made
+me think that you could do something similar with the Perceiver Architecture
+and it turns out that this has also
+been done recently as well, see [this paper](https://arxiv.org/abs/2202.10890)
+by Joao Carreira and other authors at DeepMind.
+
+# Key Takeaways
+
+The main things I learned about from this conference were:
+
+ - There's still a lot of work to be done in the field of grounded language learning,
+ it seems like we're still really only scratching the surface of this multi-faceted problem
+ - Adapters, which I had not even heard of until NAACL, are a much more efficient
+ way of doing task transfer than fine-tuning big models. Indeed it will probably
+ become impossible to fine-tune the big models on regular hardware soon and
+ Adapters seem like a good way of handling that problem, along with other
+ alternatives like prefix and prompt tuning.
+ - We shouldn't ignore different ways of doing decoding and we might be able
+ to get more controllability if we do decoding in more clever ways. PPL-MCTS
+ and A*-esque Decoding are good first steps for approaches to try here.
+ - We're still not really closer to getting models that truly understand
+ the compositional structure of language or observations, but appropriate
+ data augmentation or priors imposed at training time like is done
+ in GANFormer 2 seem to at least paper over many of the obvious failure modes.
+
+ This blog post only really scratches the surface. It would probably take me a
+ few months of watching videos nonstop in order to write about the whole thing.
+ If you're interested in checking it out, you can pay the virtual conference
+ registration fee and check out the site on [underline](https://underline.io/events/325/reception).
