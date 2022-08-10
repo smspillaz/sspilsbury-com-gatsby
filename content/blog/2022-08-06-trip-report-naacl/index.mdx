@@ -62,6 +62,8 @@ for an approach to doing this with regular transformers and an auxiliary classif
 
 Different aspects and design choices in text-editing models were discussed. For example:
 
+![Levensthein Transformer arcihtecture diagram, from Gu et al. 2019](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/levensthein_transformer-min.png)
+
  - **Tagging Architecture**: This concerns the *output space* of the model. Many well-known
  text editing models like [Levensthein Transformer](https://arxiv.org/abs/1905.11006),
  [LEWIS](https://arxiv.org/abs/2105.08206),
@@ -135,6 +137,8 @@ and the beam width $l$. There are also other decoding methods as well,
 such as the diffusion-inspired [Austin et al. D3PM](https://arxiv.org/abs/2107.03006)
 which was presented at NeurIPS 2021.
 
+![NeuroLogic A*-esque Decoding from Lu et al. 2022, showing the operation of lookahead on constraint satisfaction](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/neuralogic_astar_esque-min.png)
+
 A best paper award was given to [Lu et al. (NeuroLogic A*-esque decoding: constrained text
 generation with lookahead heuristics)](https://arxiv.org/abs/2112.08726).
 As the title suggests, this paper proposes to use the A* graph search algorithm as part of the decoding process, enabling flexible cost-guided generation with a smaller computational budget than maintaining a large beam width. Another paper presented was 
@@ -146,6 +150,8 @@ to be) which you can only reliably estimate once you've expanded nodes to a suff
 depth. In that sense, it is similar to why we might want to use MCTS for model-based
 planning problems. MCTS gives you a way of estimating the value of the next chosen
 token based on simulated rollouts of future states.
+
+![PPL-MCTS Diagram from Chaffin et al. 2022 showing decoding by monte-carlo tree search and a discriminator at sufficient tree depths](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/ppl_mcts-min.png)
 
 A nice observation from these controlled generation papers is that controlled generation
 is sort of like an alternative to fine-tuning. This was also an observation in
@@ -234,6 +240,9 @@ taken for each.
  requires datasets that support interventions. There's also the subfield of incorporating
  information fetched from [external knowledgebases](https://arxiv.org/abs/1507.05670) into
  your representations or causal reasoning process, see for example ([Gui et al. 2021, KAT: A Knowledge Augmented Transformer for Vision and Language](https://arxiv.org/abs/2112.08614)).
+
+![Factorized Multimodal Representations from Tsai et al. 2019](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/modality_representation_factorization-min.png)
+
  - **Generation**: Once you have understood the inputs, you might want to generate some
  outputs in one or more modalities. A very well-known generative model is
  [OpenAI's DALL-E 2](https://arxiv.org/abs/2204.06125). But there are lots of
@@ -245,6 +254,9 @@ taken for each.
  (into "multimodal discriminative factors" and "modality-specific generative factors",
  where the latter are unique for each modality). An application of this is SVHN / MNIST
  style transfer, eg, the first modality is SVHN and the second modality is MNIST.
+
+![Cyclic Translations between Modalities in Pham et al. 2019](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/found_in_translation-min.png)
+
  - **Transferrence**: If we learned a lot of things frm one modality, we might want to
  transfer that information to the other modality in some way. Asides from the
  standard multimodal transformers like UNITER, LXMERT and PerceiverIO, one
@@ -289,6 +301,8 @@ visual instructions. [FILM](https://soyeonm.github.io/FILM_webpage/)
 which helps with mapping in partially observable situations
 and [AMSLAM](https://openreview.net/forum?id=PtuQ8bk9xF5)
 which accounts for affordances in semantic representations.
+
+![Progress on ALFRED, from Yonatan's talk](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/progress_on_alfred-min.png)
 
 The things which really help in these types of problems roughly align with our
 intutions about what might make these problems difficult for humans. For example,
@@ -336,6 +350,8 @@ amalgamation of several text-based environments and corresponding manuals and
 descriptions, such as [RTFM](https://arxiv.org/abs/1910.08210),
 [Messenger](https://openreview.net/forum?id=udbMZR1cKE6)
 and others.
+
+![TextWorld version of ALFRED, from Shidhar et al. 2021](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/alfworld-min.png)
 
 Victor also talks about how it might be better to learn policies in the abstract
 symbolic space, then figure out a way to transfer these to other environments
@@ -385,6 +401,8 @@ these sorts of dependencies, but computational complexity is a bottleneck.
 in a hacky way by either heavily downsampling, or slicing up the image into
 patches and doing attention between encoded patches.
 
+![The first GANformer (Hudson and Manning 2021) uses a Perceiver-like architecture to generate images. Latents are sampled and then the image is generated](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/ganformer_1_architecture-min.png)
+
 In the context of image generation, first the [GANFormer](https://arxiv.org/abs/2103.01209)
 model is discussed. This model is sort of like [PerceiverIO](https://arxiv.org/abs/2107.14795)
 and other inducing point methods like [Set Transformers](https://arxiv.org/abs/1810.00825),
@@ -401,6 +419,8 @@ using a convolution. The authors of that paper also did some interpretation of t
 attention maps and found that the attention between the latents and the generated
 images revealed some level of correspondence between contiguous regions of the
 image corresponding to specific textures and the latents.
+
+![GANformer 2 focuses more on the compositionality aspect by learning to generate segmentation and depth maps first, then using those as a mask when generating images from latents](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/ganformer_2_latents-min.png)
 
 The compositional inductive bias was improved in [GANFormer 2](https://arxiv.org/abs/2111.08960).
 In this paper a stronger inductive bias is built in to the same model
@@ -447,6 +467,7 @@ which proposes to assign grammatical roles (for example `VERB`) to words
 in a sentence, then use those as the keys and queries and the words themselves
 as values, which can help with compositional generalization.
 
+![Using abstract grammatical roles to compute attention weights in Chakravarthy et al. 2022](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/roles_guiding_attention-min.png)
 
 ## Data Efficiency and Low Resource Languages
 
@@ -493,6 +514,8 @@ adapters, including
 [Parallel Adapters](https://arxiv.org/abs/2110.04366) and
 Scaled Parallel Adapters.
 
+![Adapter modules inserted into a transformer, from Houlsby and Giurgiu et al. 2019](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/adapters-min.png)
+
 Adapters and fine-tuning also received
 some attention at the "Efficient Methods" oral presentations session.
 [On the Transferrability of Prompt Tuning for Natural Language Processing](https://arxiv.org/abs/2111.06719) by Yusheng Su,
@@ -532,6 +555,8 @@ compute budgets. They propose the [ELUE](https://eluebenchmark.fastnlp.top)
 benchmark, which measures performance on a few challenging NLP tasks (sentiment
 analysis, NLI, paraphrasing) as well as FLOPs usage.
 
+![FNet architecture in the context of a Transformer](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/fnet_architecture-min.png)
+
 On the side of compute and memory efficient architectures, [FNet](https://arxiv.org/abs/2105.03824)
 was presented by James Lee-Thorp. This paper also received a best paper
 award. The presented architecture is another
@@ -551,6 +576,8 @@ can scale quite well to large input lengths, since it scales $O(n \log n)$.
 The authors of the paper show that it is competitive in terms of latency/accurracy
 tradeoff. It is not quite as accurrate as other Transformer models, but
 is about 70-80% faster at training and inference time in practice.
+
+![Kronecker factorization from Tahaei et al. 2022](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/kronecker_product-min.png)
 
 [KroneckerBERT](https://arxiv.org/abs/2109.06243) presents a
 method of weight compression by
@@ -581,6 +608,8 @@ me think that you could do something similar with the Perceiver Architecture
 and it turns out that this has also
 been done recently as well, see [this paper](https://arxiv.org/abs/2202.10890)
 by Joao Carreira and other authors at DeepMind.
+
+![Hierarchical Transformer from Tworkoski et al.](https://sspilsbury-com-images.s3.amazonaws.com/posts/blog/2022-08-naacl-trip-report/hierarchical_transformer-min.png)
 
 # Key Takeaways
 
