@@ -63,8 +63,10 @@ for an approach to doing this with regular transformers and an auxiliary classif
 Different aspects and design choices in text-editing models were discussed. For example:
 
  - **Tagging Architecture**: This concerns the *output space* of the model. Many well-known
- text editing models like Levensthein Transformer, LEWIS,
- [FELIX](https://aclanthology.org/2020.findings-emnlp.111/) and LaserTagger
+ text editing models like [Levensthein Transformer](https://arxiv.org/abs/1905.11006),
+ [LEWIS](https://arxiv.org/abs/2105.08206),
+ [FELIX](https://aclanthology.org/2020.findings-emnlp.111/) and
+ [LaserTagger](https://arxiv.org/abs/1909.01187)
  all use per-token tagging. In these models, each token is tagged with some operation,
  for example `KEEP` or `REPLACE`, then there is some other part of the model which
  generates *new* tokens conditioned on the old token and the edit operation. Where the
@@ -72,8 +74,9 @@ Different aspects and design choices in text-editing models were discussed. For 
  output vocabulary. Hallucination is still a problem whenever generating text, so
  approaches like LaserTagger fight that by building a large phrase book of replacements,
  then picking corrections only from the phrasebook. Clearly this has the limitation of
- requiring a very large phrasebook to get good performance. On the other hand, GeCTOR
- and PIE have a large number of available edit operations, which when chosen, admit
+ requiring a very large phrasebook to get good performance. On the other hand,
+ [GeCTOR](https://arxiv.org/abs/2005.12592)
+ and [PIE](https://aclanthology.org/D19-1435/) have a large number of available edit operations, which when chosen, admit
  a small number of replacement tokens.
  - **Decoder**: There are many different decoder architectures available. The
  simplest choice is "feedforward", where every token in the encoded input
