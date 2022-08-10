@@ -58,9 +58,26 @@ Nav.propTypes = {
   ),
 }
 
+const BlogImage = ({ type, src, title, alt }) => (
+  <div class="blog-image">
+    <img src={src} alt={alt}/>
+    {
+      (title || alt) && <p class="caption">{title || alt}</p>
+    }
+  </div>
+)
+
+BlogImage.propTypes = {
+  type: PropTypes.string.isRequired,
+  src: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  alt: PropTypes.string
+}
+
 const components = {
   bio: PageBio,
   link: Link,
+  img: BlogImage
 }
 
 const Layout = ({ title, children, menuLinks, root = false }) => {
