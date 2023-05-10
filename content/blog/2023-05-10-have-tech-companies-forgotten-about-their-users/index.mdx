@@ -1,0 +1,58 @@
+---
+title: "Have tech companies forgotten about their users?"
+date: "2023-05-10"
+description: When did personal computing get this complicated?
+post: true
+---
+
+Here follows a short rant about something mindbogglingly user-unfriendly.
+
+My mother recently upgraded her laptop to a new M2 Macbook Air. As someone who is a bit older and occassionally
+still needs to deal with things on real physical paper, she needs to set up her printer.
+
+I was genuinely under the impression that we recognized that printers are [inherently frustrating](https://theoatmeal.com/comics/printers)
+and therefore solved printers like 10 years ago.
+
+She clicks a few buttons and the printer is apparently added to the system. So far so good.
+
+Except now there's a message "Encryption credentials have expired" and so no printing for her.
+
+First of all, remember that we're talking about my mother here. She's an average user who doesn't
+particularly care about encryption, especially in relation to a printer. You wouldn't fault her for
+thinking that the two things could even be connected. Its a printer, not a high-stakes game of communication
+where you don't want your adversary to be able to intercept a secret code or whatever. There's
+an information page on the error message which takes you to an unhelpful documentation page telling
+you to check with your printer manufacturer about the printer's certificate validity. Again, to a
+regular user, nobody knows or cares what a certificate is. They just want to print things.
+
+Second of all, there's literally nothing else wrong other than the fact that there's some
+out of date signature on the encryption key. You can just ignore the expiry date and continue
+doing what you were doing before. Why the hell is there not some simple override
+to just say "hey, I accept the minute level of risk here, just print this anyway". Remember,
+this is my mother, her Macbook and her printer, all behind a firewall in her home office
+that we're talking about here. The printer is *right there*. Who cares if the certificate is expired
+because she knows for sure that she's sending her documents to the right printer. But nope,
+expired certificate equals no printing for you, because god forbid someone might use an
+old certificate to impersonate the printer and set up a man-in-the-middle attack. I can understand
+this being a problem if I'm in a shared workspace of thousands of people and I don't want others
+snooping on what I'm printing, but in this case, I should just be able to say "honestly, its fine."
+
+So anwyay, she's suggesting that she gets a new printer over this which is a shame because
+there's nothing wrong with the printer other than it being a bit old and this is starting to
+smell a lot like planned obscelescene. Fortunately, after some furious googling, we figure out that
+there might be a way to get around this, because fortunately the manufacturer had the foresight
+to deal with this problem.
+
+OK, so get this. It requires first figuring out what the printer's IP address and/or hostname is
+(remember, this is my mother who we're talking about here), navigating to that page in your browser,
+clicking through a bunch of scary warnings about the being there to trick you and steal your financial
+information, then going deep into the printer settings to create a self-signed SSL certificate, installing
+that one for the printer etc etc. I have a Masters Degree in Computer Science and even I'm reaching quite
+deep into my own expertise here and we're expecting people like my mother to be able to figure this out.
+
+So we create the new certificate, delete and re-add the printer and the OS is still complaining about
+the certificate being out of date. We verify that the certificate is, in fact, up to date, but apparently
+the OS has cached information about the old certificate somewhere and now we're stuck with the error message.
+And here I am in another country trying to work out with her via screen-share what's going on.
+
+This is profoundly stupid and anti-user. There is nothing wrong with the printer, why can't she just use it?
